@@ -1,0 +1,329 @@
+#include <iostream>
+#include <utility>
+using namespace std;
+class MyString
+{
+  char *str;
+  int length;
+  static int count;
+
+public:
+  MyString()
+  {
+    length = 80;
+    str = new char[length];
+    count++;
+  }
+  MyString(int size)
+  {
+    length = size;
+    str = new char[length];
+    count++;
+  }
+  MyString(const char *st)
+  {
+    length = strlen(st);
+    str = new char[strlen(st) + 1];
+    strcpy(str, st);
+    count++;
+  }
+  MyString(const MyString &obj) // конструктор копирования
+  {
+    length = obj.length;
+    str = new char[length + 1];
+    strcpy(str, obj.str);
+    count++;
+  }
+  ~MyString()
+  {
+    delete[] str;
+    count--;
+  }
+  MyString(MyString &&obj) // конструктор переноса
+  {
+    str = obj.str;
+    obj.str = nullptr;
+    length = obj.length;
+    obj.length = 0;
+    count++;
+  }
+  bool MyStrStr(const char *str) // поиск подстроки в строке
+  {
+    const char *s = strstr(this->str, str);
+    if (s != nullptr)
+    {
+      return true;
+    }
+    return false;
+  }
+  void Print()
+  {
+    cout << str << endl;
+  }
+  void MyDelChr(char c) // поиск символа в строке
+  {
+    int calc = 0;
+    for (int i = 0; i < length; i++)
+    {
+      if (str[i] == c)
+      {
+        calc++;
+      }
+    }
+    int newsize = length - calc;
+    char *newstr = new char[newsize + 1];
+    int j = 0;
+    for (int i = 0; i < length + 1; i++)
+    {
+      if (str[i] != c)
+      {
+        newstr[j] = str[i];
+        j++;
+      }
+    }
+    newstr[j] = '\0';
+    delete[] str;
+    str = newstr;
+    length = newsize;
+  }
+  int MyStrCmp(MyString &b) // сравнение строк
+  {
+    int cmp = strcmp(str, b.str);
+    if (cmp > 0)
+    {
+      return 1;
+    }
+    if (cmp < 0)
+    {
+      return -1;
+    }
+    return 0;
+  }
+  void MyStrcpy(MyString &obj) // копиррование
+  {
+    delete[] str;
+    str = new char[strlen(obj.str) + 1];
+    strcpy(str, obj.str);
+    cout << "Copy constructor!";
+  }
+  int MyStrLen() // возвращение длины строки
+  {
+    return strlen(str);
+  }
+  void MyStrCat(MyString &b) // обьединение строкк
+  {
+    int newLength = strlen(str) + strlen(b.str);
+    char *newStr = new char[newLength + 1];
+    strcpy(newStr, str);
+    strcat(newStr, b.str);
+    delete[] str;
+    str = newStr;
+    length = newLength;
+  }
+  static void PrintCount()
+  {
+    cout << "Count=> " << count << endl;
+  }
+  MyString operator+(const char *b)
+  {
+    MyString c(length + 1 + strlen(b) + 1);
+    strcpy(c.str, str);
+    strcat(c.str, b);
+    return c;
+  }
+  MyString operator+(const MyString &b)
+  {
+    return *this + b.str;
+  }
+  MyString operator-(char ch) // delete 'l'
+  {
+    char *temp = new char[strlen(str) + 1];
+    int j = 0;
+    int len = strlen(str);
+    for (int i = 0; i < len; i++)
+    {
+      if (str[i] != ch)
+      {
+        temp[j] = str[i];
+        j++;
+      }
+    }
+    MyString res(temp);
+    delete[] temp;
+    return res;
+  }
+  MyString operator-(const char *s) // delete 'lo'
+  {
+    int len = strlen(str);
+    int slen = strlen(s);
+    if (len >= slen)
+    {
+      if (strcmp(str + (len - slen), s) == 0)
+      {
+        int newLen = len - slen;
+        char *newstr = new char[newLen + 1];
+        for (int i = 0; i < newLen; i++)
+        {
+          newstr[i] = str[i];
+        }
+        MyString res(newstr);
+        delete[] newstr;
+        return res;
+      }
+    }
+    return *this;
+  }
+  MyString operator++(int)
+  {
+    MyString tim = *this;
+    int oldLen = strlen(str);
+    char *newStr = new char[oldLen + 2];
+    strcpy(newStr, str);
+    newStr[oldLen] = '_';
+    newStr[oldLen + 1] = '\0';
+
+    delete[] str;
+    str = newStr;
+    length = oldLen + 1;
+    return tim;
+  }
+  MyString operator--(int)
+  {
+    MyString tim = *this;
+    int oldLen = strlen(str);
+    if (oldLen > 0)
+    {
+      str[oldLen - 1] = '\0';
+      length = oldLen - 1;
+    }
+    return tim;
+  }
+  MyString &operator+=(const MyString &w)
+  {
+    int newLength = length + strlen(w.str);
+    char *temp = new char[newLength];
+    strcpy(temp, str);   // old
+    strcat(temp, w.str); // new
+    delete[] str;
+    str = temp;
+    length = newLength;
+    return *this;
+  }
+  bool operator==(const MyString &w)
+  {
+    return strcmp(str, w.str) == 0;
+  }
+  bool operator>(const MyString &w)
+  {
+    return strcmp(str, w.str) > 0;
+  }
+  MyString &operator-=(const MyString &w)
+  {
+
+    int len = strlen(str);
+    int slen = strlen(w.str);
+    if (len >= slen)
+    {
+      if (strcmp(str + (len - slen), w.str) == 0)
+      {
+        int newLen = len - slen;
+        char *newstr = new char[newLen + 1];
+        for (int i = 0; i < newLen; i++)
+        {
+          newstr[i] = str[i];
+        }
+        delete[] str;
+        str = newstr;
+      }
+    }
+    return *this;
+  }
+};
+
+int MyString ::count = 0;
+
+int main()
+{
+  /*MyString obj1("Hello World");
+  obj1.Print();
+  MyString obj2 = obj1;
+  obj2.Print();
+  cout << "Str: " << obj2.MyStrStr("Wo") << endl;
+
+  MyString obj3("Bye World");
+  cout << "Move: ";
+  MyString obj4 = std::move(obj3);
+  obj4.Print();
+
+  MyString obj5("Hello World");
+  obj5.MyDelChr('l');
+  cout << "Delete symbol: ";
+  obj5.Print();
+
+  MyString tempCopy("New string");
+  cout << "Copy: ";
+  obj1.MyStrcpy(tempCopy);
+  obj1.Print();
+
+  MyString obj6("Hello ");
+  MyString obj7("World");
+  obj6.MyStrCat(obj7);
+  cout << "Concat: ";
+  obj6.Print();
+  cout << "Length: " << obj6.MyStrLen() << endl;
+  //*/
+  MyString a("Hello");
+  MyString b(" World");
+
+  cout << "с= a + b => ";
+  MyString c = a + b;
+  c.Print();
+  cout << "c = a + world=> ";
+  MyString p = a + b;
+  p.Print();
+  cout << "c = a - l=> ";
+  MyString v = c - 'l';
+  v.Print();
+  cout << "d = a - lo=> ";
+  MyString d = a - "lo";
+  d.Print();
+
+  cout << "a++ => ";
+  a++;
+  a.Print();
+  cout << "a-- => ";
+  a--;
+  a.Print();
+  a++;
+  cout << "a+= world=> ";
+  a += "world";
+  a.Print();
+
+  cout << "a-=lo=> ";
+  a -= "lo";
+  a.Print();
+
+  a++;
+  if (a == b)
+  {
+    cout << "a == b: true=> ";
+  }
+  else
+  {
+    cout << "a!= b: false=> ";
+  }
+  a.Print();
+
+  if (a > b)
+  {
+    cout << "a>b =>";
+  }
+  else if (a > b)
+  {
+    cout << "false/";
+  }
+  a.Print();
+  cout << "Count:\n";
+  MyString::PrintCount();
+}
+
